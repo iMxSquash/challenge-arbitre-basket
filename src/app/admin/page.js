@@ -1,36 +1,28 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import useSocket from '../hooks/useSocket';
 import { formatGameClock, formatShotClock } from '../utils/formatTime';
 import Link from 'next/link';
 import LoginForm from '../components/LoginForm';
 
 export default function AdminPanel() {
-    const { scoreState, updateScore } = useSocket();
+    const { scoreState, updateScore, resetShotClock, resetGameClock } = useSocket();
     const [localState, setLocalState] = useState(scoreState);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const gameClockInterval = useRef(null);
-    const shotClockInterval = useRef(null);
 
     // Synchronisation de l'état local avec l'état global du score
     useEffect(() => {
         setLocalState(scoreState);
     }, [scoreState]);
 
-    // Effet pour gérer les chronomètres
+    // Effet pour vérifier si l'utilisateur est connecté
     useEffect(() => {
         // Vérifier si l'utilisateur est connecté dans localStorage
         const adminLoggedIn = localStorage.getItem('basketballAdminLoggedIn');
         if (adminLoggedIn === 'true') {
             setIsLoggedIn(true);
         }
-
-        // Nettoyage des intervalles à la destruction du composant
-        return () => {
-            if (gameClockInterval.current) clearInterval(gameClockInterval.current);
-            if (shotClockInterval.current) clearInterval(shotClockInterval.current);
-        };
     }, []);
 
     // Fonction de connexion
@@ -57,54 +49,6 @@ export default function AdminPanel() {
             isClockRunning: !localState.isClockRunning
         };
 
-        setLocalState(newState);
-        updateScore(newState);
-
-        if (!localState.isClockRunning) {
-            // Démarrer les chronomètres
-            gameClockInterval.current = setInterval(() => {
-                setLocalState(prev => {
-                    if (prev.gameClock <= 0) {
-                        clearInterval(gameClockInterval.current);
-                        return prev;
-                    }
-
-                    const newState = {
-                        ...prev,
-                        gameClock: Math.max(0, prev.gameClock - 1)
-                    };
-
-                    updateScore(newState);
-                    return newState;
-                });
-            }, 1000);
-
-            shotClockInterval.current = setInterval(() => {
-                setLocalState(prev => {
-                    if (prev.shotClock <= 0) {
-                        clearInterval(shotClockInterval.current);
-                        return prev;
-                    }
-
-                    const newState = {
-                        ...prev,
-                        shotClock: Math.max(0, prev.shotClock - 1)
-                    };
-
-                    updateScore(newState);
-                    return newState;
-                });
-            }, 1000);
-        } else {
-            // Arrêter les chronomètres
-            if (gameClockInterval.current) clearInterval(gameClockInterval.current);
-            if (shotClockInterval.current) clearInterval(shotClockInterval.current);
-        }
-    };
-
-    // Réinitialiser le chronomètre des tirs
-    const resetShotClock = (value = 24) => {
-        const newState = { ...localState, shotClock: value };
         setLocalState(newState);
         updateScore(newState);
     };
@@ -172,13 +116,6 @@ export default function AdminPanel() {
         updateScore(newState);
     };
 
-    // Réinitialisation de l'horloge de jeu
-    const resetGameClock = () => {
-        const newState = { ...localState, gameClock: 600 }; // 10:00
-        setLocalState(newState);
-        updateScore(newState);
-    };
-
     // Modification des noms d'équipe
     const changeTeamName = (team, newName) => {
         const newState = { ...localState };
@@ -191,6 +128,16 @@ export default function AdminPanel() {
 
         setLocalState(newState);
         updateScore(newState);
+    };
+
+    // Fonction pour réinitialiser l'horloge de jeu à 10:00
+    const handleResetGameClock = () => {
+        resetGameClock(600); // 10 minutes (600 secondes)
+    };
+
+    // Fonction pour réinitialiser le chronomètre des tirs
+    const handleResetShotClock = (value) => {
+        resetShotClock(value);
     };
 
     return (
@@ -249,7 +196,7 @@ export default function AdminPanel() {
                             </button>
                             <button
                                 className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                onClick={resetGameClock}
+                                onClick={handleResetGameClock}
                                 aria-label="Réinitialiser l'horloge à 10:00"
                             >
                                 Réinitialiser (10:00)
@@ -262,21 +209,21 @@ export default function AdminPanel() {
                         <div className="flex flex-wrap gap-2">
                             <button
                                 className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                onClick={() => resetShotClock(24)}
+                                onClick={() => handleResetShotClock(24)}
                                 aria-label="Réinitialiser le chronomètre des tirs à 24 secondes"
                             >
                                 24 secondes
                             </button>
                             <button
                                 className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                onClick={() => resetShotClock(14)}
+                                onClick={() => handleResetShotClock(14)}
                                 aria-label="Réinitialiser le chronomètre des tirs à 14 secondes"
                             >
                                 14 secondes
                             </button>
                             <button
                                 className="px-4 py-2 bg-red-700 hover:bg-red-800 text-white rounded font-bold focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                                onClick={() => resetShotClock(0)}
+                                onClick={() => handleResetShotClock(0)}
                                 aria-label="Réinitialiser le chronomètre des tirs à 0"
                             >
                                 Réinitialiser (0)
@@ -296,7 +243,7 @@ export default function AdminPanel() {
                                     type="text"
                                     value={localState.homeTeam.name}
                                     onChange={(e) => changeTeamName('home', e.target.value)}
-                                    className="border border-gray-400 text-gray-900 rounded px-2 py-1 w-full"
+                                    className="border border-gray-400 rounded px-2 py-1 w-full"
                                     aria-label="Nom de l'équipe domicile"
                                 />
                             </div>
@@ -388,7 +335,7 @@ export default function AdminPanel() {
                                     type="text"
                                     value={localState.awayTeam.name}
                                     onChange={(e) => changeTeamName('away', e.target.value)}
-                                    className="border border-gray-400 text-gray-900 rounded px-2 py-1 w-full"
+                                    className="border border-gray-400 rounded px-2 py-1 w-full"
                                     aria-label="Nom de l'équipe visiteur"
                                 />
                             </div>

@@ -50,6 +50,12 @@ export function useSocket() {
             setScoreState(newScoreState);
         });
 
+        // Gestionnaire d'événement pour l'expiration du chrono des tirs
+        socketInstance.on('shotClockExpired', () => {
+            console.log('Le chronomètre des tirs a expiré');
+            // Ajoutez ici une logique supplémentaire si nécessaire (son, animation, etc.)
+        });
+
         // Définition du socket dans l'état
         setSocket(socketInstance);
 
@@ -66,7 +72,27 @@ export function useSocket() {
         }
     };
 
-    return { socket, scoreState, updateScore };
+    // Fonction pour réinitialiser le chronomètre des tirs
+    const resetShotClock = (value = 24) => {
+        if (socket) {
+            socket.emit('resetShotClock', value);
+        }
+    };
+
+    // Fonction pour réinitialiser l'horloge de jeu
+    const resetGameClock = (value = 600) => {
+        if (socket) {
+            socket.emit('resetGameClock', value);
+        }
+    };
+
+    return {
+        socket,
+        scoreState,
+        updateScore,
+        resetShotClock,
+        resetGameClock
+    };
 }
 
 export default useSocket;

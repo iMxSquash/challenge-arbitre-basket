@@ -24,6 +24,58 @@ const initialScoreState = {
 // Variable pour stocker l'état actuel du score
 let scoreState = { ...initialScoreState };
 
+// Variables pour les intervalles des chronomètres
+let gameClockInterval = null;
+let shotClockInterval = null;
+
+// Fonction pour démarrer les chronomètres
+function startClocks(io) {
+    // Arrêter les chronomètres existants si nécessaire
+    stopClocks();
+
+    // Démarrer le chronomètre de jeu
+    gameClockInterval = setInterval(() => {
+        if (scoreState.gameClock > 0) {
+            scoreState.gameClock -= 1;
+
+            // Diffuser la mise à jour à tous les clients
+            io.emit('scoreUpdate', scoreState);
+
+            // Si le chronomètre atteint zéro, arrêter les chronomètres
+            if (scoreState.gameClock === 0) {
+                stopClocks();
+                scoreState.isClockRunning = false;
+                io.emit('scoreUpdate', scoreState);
+            }
+        }
+    }, 1000);
+
+    // Démarrer le chronomètre des tirs
+    shotClockInterval = setInterval(() => {
+        if (scoreState.shotClock > 0) {
+            scoreState.shotClock -= 1;
+
+            // Si le chronomètre des tirs atteint zéro, émettre un événement spécial
+            if (scoreState.shotClock === 0) {
+                io.emit('shotClockExpired');
+            }
+        }
+    }, 1000);
+}
+
+// Fonction pour arrêter les chronomètres
+function stopClocks() {
+    if (gameClockInterval) {
+        clearInterval(gameClockInterval);
+        gameClockInterval = null;
+    }
+
+    if (shotClockInterval) {
+        clearInterval(shotClockInterval);
+        shotClockInterval = null;
+    }
+}
+
 // Création d'un serveur HTTP basique
 const httpServer = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -48,9 +100,33 @@ io.on('connection', (socket) => {
 
     // Gestion de la mise à jour du score
     socket.on('updateScore', (newScoreState) => {
-        console.log('Mise à jour du score reçue:', newScoreState);
-        scoreState = { ...newScoreState };
+        console.log('Mise à jour du score reçue');
+
+        // Si l'état de l'horloge change (démarrage/arrêt)
+        if (newScoreState.isClockRunning !== scoreState.isClockRunning) {
+            if (newScoreState.isClockRunning) {
+                startClocks(io);
+            } else {
+                stopClocks();
+            }
+        }
+
+        // Mettre à jour l'état du score
+        scoreState = { ...scoreState, ...newScoreState };
+
         // Diffuser la mise à jour à tous les clients connectés
+        io.emit('scoreUpdate', scoreState);
+    });
+
+    // Gestion spécifique de la réinitialisation du chronomètre des tirs
+    socket.on('resetShotClock', (value = 24) => {
+        scoreState.shotClock = value;
+        io.emit('scoreUpdate', scoreState);
+    });
+
+    // Réinitialisation de l'horloge de jeu
+    socket.on('resetGameClock', (value = 600) => {
+        scoreState.gameClock = value;
         io.emit('scoreUpdate', scoreState);
     });
 
