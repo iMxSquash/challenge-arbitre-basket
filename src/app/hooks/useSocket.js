@@ -25,61 +25,55 @@ export function useSocket() {
     });
 
     useEffect(() => {
-        // Assurez-vous que le code s'exécute uniquement côté client
+        // Make sure the code runs only on the client side
         if (typeof window === "undefined") return;
 
-        // Configuration Socket.IO pour se connecter au serveur externe sur le port 4000
+        // Socket.IO configuration to connect to the external server on port 4000
         const socketInstance = io('http://localhost:4000', {
             withCredentials: true,
             transports: ['websocket', 'polling']
         });
 
-        // Gestionnaire d'événements pour la connexion
+        // Event handler for connection
         socketInstance.on('connect', () => {
-            console.log('Connecté au serveur Socket.IO externe', socketInstance.id);
+            console.log('Connected to external Socket.IO server', socketInstance.id);
         });
 
-        // Gestionnaire d'événements pour les erreurs de connexion
+        // Event handler for connection errors
         socketInstance.on('connect_error', (error) => {
-            console.error('Erreur de connexion Socket.IO:', error);
+            console.error('Socket.IO connection error:', error);
         });
 
-        // Gestionnaire d'événements pour les mises à jour du score
+        // Event handler for score updates
         socketInstance.on('scoreUpdate', (newScoreState) => {
-            console.log('Mise à jour du score reçue:', newScoreState);
+            console.log('Score update received:', newScoreState);
             setScoreState(newScoreState);
         });
 
-        // Gestionnaire d'événement pour l'expiration du chrono des tirs
-        socketInstance.on('shotClockExpired', () => {
-            console.log('Le chronomètre des tirs a expiré');
-            // Ajoutez ici une logique supplémentaire si nécessaire (son, animation, etc.)
-        });
-
-        // Définition du socket dans l'état
+        // Set the socket in state
         setSocket(socketInstance);
 
-        // Nettoyage à la destruction du composant
+        // Cleanup when component is unmounted
         return () => {
             socketInstance.disconnect();
         };
     }, []);
 
-    // Fonction pour mettre à jour le score
+    // Function to update the score
     const updateScore = (newScoreState) => {
         if (socket) {
             socket.emit('updateScore', newScoreState);
         }
     };
 
-    // Fonction pour réinitialiser le chronomètre des tirs
+    // Function to reset the shot clock
     const resetShotClock = (value = 24) => {
         if (socket) {
             socket.emit('resetShotClock', value);
         }
     };
 
-    // Fonction pour réinitialiser l'horloge de jeu
+    // Function to reset the game clock
     const resetGameClock = (value = 600) => {
         if (socket) {
             socket.emit('resetGameClock', value);
@@ -91,7 +85,7 @@ export function useSocket() {
         scoreState,
         updateScore,
         resetShotClock,
-        resetGameClock
+        resetGameClock,
     };
 }
 

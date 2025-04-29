@@ -23,7 +23,6 @@ const initialScoreState = {
 // Variable pour stocker l'état actuel du score
 let scoreState = { ...initialScoreState };
 
-// Cette variable permettra de suivre l'instance Socket.IO
 let io;
 
 export async function GET(req) {
@@ -55,7 +54,6 @@ export async function GET(req) {
             // Gestion de la mise à jour du score
             socket.on('updateScore', (newScoreState) => {
                 scoreState = { ...newScoreState };
-                // Diffuser la mise à jour à tous les clients connectés
                 io.emit('scoreUpdate', scoreState);
             });
 

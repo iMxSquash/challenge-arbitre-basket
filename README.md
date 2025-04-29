@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Tableau d'affichage de Basketball
 
-## Getting Started
+Ce projet est un tableau d'affichage de scores pour les matchs de basketball avec une interface d'administration pour les arbitres. Les modifications effectuées dans l'interface d'administration sont immédiatement visibles sur le tableau d'affichage public grâce à une communication en temps réel via WebSockets.
 
-First, run the development server:
+## Fonctionnalités
+
+- **Tableau d'affichage public** - Affiche en temps réel :
+
+  - Scores des équipes
+  - Temps de jeu
+  - Chronomètre des tirs (24 secondes)
+  - Période actuelle
+  - Fautes d'équipe
+  - Temps morts restants
+
+- **Interface d'administration pour les arbitres** - Permet de :
+  - Démarrer/arrêter les chronomètres
+  - Ajouter des points (1, 2 ou 3)
+  - Gérer les fautes d'équipe
+  - Gérer les temps morts
+  - Modifier les noms des équipes
+  - Changer de période
+  - Réinitialiser les chronomètres
+
+## Technologies utilisées
+
+- Next.js (framework React)
+- Socket.IO pour la communication en temps réel
+- Tailwind CSS pour le design
+
+## Installation
+
+1. Clonez ce dépôt
+2. Installez les dépendances :
+
+```bash
+npm install
+```
+
+## Utilisation
+
+Ce projet nécessite deux serveurs distincts pour fonctionner correctement :
+
+### 1. Démarrer le serveur Socket.IO (serveur WebSocket)
+
+```bash
+node server/index.js
+```
+
+### 2. Démarrer le serveur Next.js
+
+Dans un nouveau terminal :
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Accéder à l'application
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- **Tableau d'affichage public** : [http://localhost:3000](http://localhost:3000)
+- **Interface d'administration** : [http://localhost:3000/admin](http://localhost:3000/admin)
+  - Mot de passe : `arbitre123`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Architecture
 
-## Learn More
+L'application est divisée en deux parties principales :
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Serveur Socket.IO** (port 4000) - Gère la communication en temps réel et l'état des chronomètres
+2. **Application Next.js** (port 3000) - Interface utilisateur avec deux vues principales :
+   - Tableau d'affichage public
+   - Interface d'administration pour les arbitres

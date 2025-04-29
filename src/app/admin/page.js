@@ -11,38 +11,38 @@ export default function AdminPanel() {
     const [localState, setLocalState] = useState(scoreState);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    // Synchronisation de l'état local avec l'état global du score
+    // Synchronization of local state with global score state
     useEffect(() => {
         setLocalState(scoreState);
     }, [scoreState]);
 
-    // Effet pour vérifier si l'utilisateur est connecté
+    // Effect to check if the user is logged in
     useEffect(() => {
-        // Vérifier si l'utilisateur est connecté dans localStorage
+        // Check if the user is logged in from localStorage
         const adminLoggedIn = localStorage.getItem('basketballAdminLoggedIn');
         if (adminLoggedIn === 'true') {
             setIsLoggedIn(true);
         }
     }, []);
 
-    // Fonction de connexion
+    // Login function
     const handleLogin = () => {
         setIsLoggedIn(true);
         localStorage.setItem('basketballAdminLoggedIn', 'true');
     };
 
-    // Si l'utilisateur n'est pas connecté, afficher le formulaire de connexion
+    // If the user is not logged in, display the login form
     if (!isLoggedIn) {
         return <LoginForm onLogin={handleLogin} />;
     }
 
-    // Déconnexion
+    // Logout
     const handleLogout = () => {
         setIsLoggedIn(false);
         localStorage.removeItem('basketballAdminLoggedIn');
     };
 
-    // Démarrer/arrêter les chronomètres
+    // Start/stop timers
     const toggleClock = () => {
         const newState = {
             ...localState,
@@ -53,7 +53,7 @@ export default function AdminPanel() {
         updateScore(newState);
     };
 
-    // Mise à jour du score d'une équipe
+    // Update team score
     const updateTeamScore = (team, operation) => {
         const newState = { ...localState };
 
@@ -73,7 +73,7 @@ export default function AdminPanel() {
         updateScore(newState);
     };
 
-    // Mise à jour des fautes d'équipe
+    // Update team fouls
     const updateTeamFouls = (team, operation) => {
         const newState = { ...localState };
 
@@ -89,7 +89,7 @@ export default function AdminPanel() {
         updateScore(newState);
     };
 
-    // Mise à jour des temps morts
+    // Update timeouts
     const updateTeamTimeouts = (team, operation) => {
         const newState = { ...localState };
 
@@ -105,7 +105,7 @@ export default function AdminPanel() {
         updateScore(newState);
     };
 
-    // Changement de période
+    // Change period
     const changePeriod = (operation) => {
         const newState = { ...localState };
 
@@ -116,7 +116,7 @@ export default function AdminPanel() {
         updateScore(newState);
     };
 
-    // Modification des noms d'équipe
+    // Change team names
     const changeTeamName = (team, newName) => {
         const newState = { ...localState };
 
@@ -130,12 +130,12 @@ export default function AdminPanel() {
         updateScore(newState);
     };
 
-    // Fonction pour réinitialiser l'horloge de jeu à 10:00
+    // Function to reset the game clock to 10:00
     const handleResetGameClock = () => {
-        resetGameClock(600); // 10 minutes (600 secondes)
+        resetGameClock(600); // 10 minutes (600 seconds)
     };
 
-    // Fonction pour réinitialiser le chronomètre des tirs
+    // Function to reset the shot clock
     const handleResetShotClock = (value) => {
         resetShotClock(value);
     };
@@ -143,13 +143,13 @@ export default function AdminPanel() {
     return (
         <main className="flex min-h-screen flex-col items-center justify-start p-6 bg-gray-100">
             <div className="flex justify-between items-center w-full max-w-6xl mb-6">
-                <h1 className="text-3xl font-bold text-gray-900">Interface Arbitre - Tableau de Contrôle</h1>
+                <h1 className="text-3xl font-bold text-gray-900">Referee Interface - Control Panel</h1>
                 <button
                     className="bg-red-700 text-white px-4 py-2 rounded hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                     onClick={handleLogout}
-                    aria-label="Se déconnecter de l'interface arbitre"
+                    aria-label="Log out from referee interface"
                 >
-                    Déconnexion
+                    Logout
                 </button>
             </div>
 
@@ -157,94 +157,94 @@ export default function AdminPanel() {
                 <Link
                     href="/"
                     className="text-blue-700 hover:text-blue-900 font-medium"
-                    aria-label="Voir le tableau d'affichage public"
+                    aria-label="View public scoreboard"
                 >
-                    Voir le tableau d'affichage
+                    View scoreboard
                 </Link>
             </div>
 
             <div className="w-full max-w-6xl bg-white rounded-lg shadow-md p-6 mb-8">
-                {/* État actuel du tableau */}
+                {/* Current scoreboard state */}
                 <div className="grid grid-cols-3 gap-4 mb-8 text-center">
                     <div className="bg-gray-200 p-4 rounded border border-gray-300">
-                        <h3 className="text-lg font-semibold mb-1 text-gray-900">Période</h3>
+                        <h3 className="text-lg font-semibold mb-1 text-gray-900">Period</h3>
                         <div className="text-3xl font-bold text-gray-900">{localState.period}</div>
                     </div>
 
                     <div className="bg-gray-200 p-4 rounded border border-gray-300">
-                        <h3 className="text-lg font-semibold mb-1 text-gray-900">Temps de Jeu</h3>
+                        <h3 className="text-lg font-semibold mb-1 text-gray-900">Game Time</h3>
                         <div className="text-3xl font-bold text-gray-900">{formatGameClock(localState.gameClock)}</div>
                     </div>
 
                     <div className="bg-gray-200 p-4 rounded border border-gray-300">
-                        <h3 className="text-lg font-semibold mb-1 text-gray-900">Chrono de Tir</h3>
+                        <h3 className="text-lg font-semibold mb-1 text-gray-900">Shot Clock</h3>
                         <div className="text-3xl font-bold text-gray-900">{formatShotClock(localState.shotClock)}</div>
                     </div>
                 </div>
 
-                {/* Contrôles des chronomètres */}
+                {/* Timer controls */}
                 <div className="grid grid-cols-2 gap-6 mb-8">
                     <div className="border border-gray-300 rounded-lg p-4">
-                        <h2 className="text-xl font-bold mb-4 text-gray-900">Contrôle du Temps</h2>
+                        <h2 className="text-xl font-bold mb-4 text-gray-900">Time Control</h2>
                         <div className="flex flex-wrap gap-2">
                             <button
                                 className={`px-4 py-2 rounded font-bold text-white ${localState.isClockRunning ? 'bg-red-700 hover:bg-red-800' : 'bg-green-700 hover:bg-green-800'} focus:outline-none focus:ring-2 focus:ring-offset-2 ${localState.isClockRunning ? 'focus:ring-red-500' : 'focus:ring-green-500'}`}
                                 onClick={toggleClock}
-                                aria-label={localState.isClockRunning ? "Arrêter le chronomètre" : "Démarrer le chronomètre"}
+                                aria-label={localState.isClockRunning ? "Stop timer" : "Start timer"}
                             >
-                                {localState.isClockRunning ? 'ARRÊTER' : 'DÉMARRER'}
+                                {localState.isClockRunning ? 'STOP' : 'START'}
                             </button>
                             <button
                                 className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                 onClick={handleResetGameClock}
-                                aria-label="Réinitialiser l'horloge à 10:00"
+                                aria-label="Reset clock to 10:00"
                             >
-                                Réinitialiser (10:00)
+                                Reset (10:00)
                             </button>
                         </div>
                     </div>
 
                     <div className="border border-gray-300 rounded-lg p-4">
-                        <h2 className="text-xl font-bold mb-4 text-gray-900">Chrono des Tirs</h2>
+                        <h2 className="text-xl font-bold mb-4 text-gray-900">Shot Clock</h2>
                         <div className="flex flex-wrap gap-2">
                             <button
                                 className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                 onClick={() => handleResetShotClock(24)}
-                                aria-label="Réinitialiser le chronomètre des tirs à 24 secondes"
+                                aria-label="Reset shot clock to 24 seconds"
                             >
-                                24 secondes
+                                24 seconds
                             </button>
                             <button
                                 className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                 onClick={() => handleResetShotClock(14)}
-                                aria-label="Réinitialiser le chronomètre des tirs à 14 secondes"
+                                aria-label="Reset shot clock to 14 seconds"
                             >
-                                14 secondes
+                                14 seconds
                             </button>
                             <button
                                 className="px-4 py-2 bg-red-700 hover:bg-red-800 text-white rounded font-bold focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                                 onClick={() => handleResetShotClock(0)}
-                                aria-label="Réinitialiser le chronomètre des tirs à 0"
+                                aria-label="Reset shot clock to 0"
                             >
-                                Réinitialiser (0)
+                                Reset (0)
                             </button>
                         </div>
                     </div>
                 </div>
 
-                {/* Contrôle des équipes */}
+                {/* Team controls */}
                 <div className="grid grid-cols-2 gap-6 mb-4">
-                    {/* Équipe domicile */}
+                    {/* Home team */}
                     <div className="border border-gray-300 rounded-lg p-4">
                         <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-900 mb-1">Nom de l'équipe</label>
+                            <label className="block text-sm font-medium text-gray-900 mb-1">Team name</label>
                             <div className="flex gap-2">
                                 <input
                                     type="text"
                                     value={localState.homeTeam.name}
                                     onChange={(e) => changeTeamName('home', e.target.value)}
                                     className="border border-gray-400 rounded px-2 py-1 w-full"
-                                    aria-label="Nom de l'équipe domicile"
+                                    aria-label="Home team name"
                                 />
                             </div>
                         </div>
@@ -256,28 +256,28 @@ export default function AdminPanel() {
                             <button
                                 className="bg-green-700 hover:bg-green-800 text-white py-2 rounded font-bold focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                                 onClick={() => updateTeamScore('home', '+1')}
-                                aria-label="Ajouter 1 point à l'équipe domicile"
+                                aria-label="Add 1 point to home team"
                             >
                                 +1
                             </button>
                             <button
                                 className="bg-red-700 hover:bg-red-800 text-white py-2 rounded font-bold focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                                 onClick={() => updateTeamScore('home', '-1')}
-                                aria-label="Soustraire 1 point à l'équipe domicile"
+                                aria-label="Subtract 1 point from home team"
                             >
                                 -1
                             </button>
                             <button
                                 className="bg-green-700 hover:bg-green-800 text-white py-2 rounded font-bold focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                                 onClick={() => updateTeamScore('home', '+2')}
-                                aria-label="Ajouter 2 points à l'équipe domicile"
+                                aria-label="Add 2 points to home team"
                             >
                                 +2
                             </button>
                             <button
                                 className="bg-green-700 hover:bg-green-800 text-white py-2 rounded font-bold focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                                 onClick={() => updateTeamScore('home', '+3')}
-                                aria-label="Ajouter 3 points à l'équipe domicile"
+                                aria-label="Add 3 points to home team"
                             >
                                 +3
                             </button>
@@ -285,19 +285,19 @@ export default function AdminPanel() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <h4 className="font-semibold mb-2 text-gray-900">Fautes: {localState.homeTeam.fouls}</h4>
+                                <h4 className="font-semibold mb-2 text-gray-900">Fouls: {localState.homeTeam.fouls}</h4>
                                 <div className="flex gap-2">
                                     <button
                                         className="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                                         onClick={() => updateTeamFouls('home', '+')}
-                                        aria-label="Ajouter une faute à l'équipe domicile"
+                                        aria-label="Add a foul to home team"
                                     >
                                         +
                                     </button>
                                     <button
                                         className="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                                         onClick={() => updateTeamFouls('home', '-')}
-                                        aria-label="Soustraire une faute à l'équipe domicile"
+                                        aria-label="Subtract a foul from home team"
                                     >
                                         -
                                     </button>
@@ -305,19 +305,19 @@ export default function AdminPanel() {
                             </div>
 
                             <div>
-                                <h4 className="font-semibold mb-2 text-gray-900">Temps morts: {localState.homeTeam.timeouts}</h4>
+                                <h4 className="font-semibold mb-2 text-gray-900">Timeouts: {localState.homeTeam.timeouts}</h4>
                                 <div className="flex gap-2">
                                     <button
                                         className="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                                         onClick={() => updateTeamTimeouts('home', '+')}
-                                        aria-label="Ajouter un temps mort à l'équipe domicile"
+                                        aria-label="Add a timeout to home team"
                                     >
                                         +
                                     </button>
                                     <button
                                         className="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                                         onClick={() => updateTeamTimeouts('home', '-')}
-                                        aria-label="Soustraire un temps mort à l'équipe domicile"
+                                        aria-label="Subtract a timeout from home team"
                                     >
                                         -
                                     </button>
@@ -326,17 +326,17 @@ export default function AdminPanel() {
                         </div>
                     </div>
 
-                    {/* Équipe visiteur */}
+                    {/* Away team */}
                     <div className="border border-gray-300 rounded-lg p-4">
                         <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-900 mb-1">Nom de l'équipe</label>
+                            <label className="block text-sm font-medium text-gray-900 mb-1">Team name</label>
                             <div className="flex gap-2">
                                 <input
                                     type="text"
                                     value={localState.awayTeam.name}
                                     onChange={(e) => changeTeamName('away', e.target.value)}
                                     className="border border-gray-400 rounded px-2 py-1 w-full"
-                                    aria-label="Nom de l'équipe visiteur"
+                                    aria-label="Away team name"
                                 />
                             </div>
                         </div>
@@ -348,28 +348,28 @@ export default function AdminPanel() {
                             <button
                                 className="bg-green-700 hover:bg-green-800 text-white py-2 rounded font-bold focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                                 onClick={() => updateTeamScore('away', '+1')}
-                                aria-label="Ajouter 1 point à l'équipe visiteur"
+                                aria-label="Add 1 point to away team"
                             >
                                 +1
                             </button>
                             <button
                                 className="bg-red-700 hover:bg-red-800 text-white py-2 rounded font-bold focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                                 onClick={() => updateTeamScore('away', '-1')}
-                                aria-label="Soustraire 1 point à l'équipe visiteur"
+                                aria-label="Subtract 1 point from away team"
                             >
                                 -1
                             </button>
                             <button
                                 className="bg-green-700 hover:bg-green-800 text-white py-2 rounded font-bold focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                                 onClick={() => updateTeamScore('away', '+2')}
-                                aria-label="Ajouter 2 points à l'équipe visiteur"
+                                aria-label="Add 2 points to away team"
                             >
                                 +2
                             </button>
                             <button
                                 className="bg-green-700 hover:bg-green-800 text-white py-2 rounded font-bold focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                                 onClick={() => updateTeamScore('away', '+3')}
-                                aria-label="Ajouter 3 points à l'équipe visiteur"
+                                aria-label="Add 3 points to away team"
                             >
                                 +3
                             </button>
@@ -377,19 +377,19 @@ export default function AdminPanel() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <h4 className="font-semibold mb-2 text-gray-900">Fautes: {localState.awayTeam.fouls}</h4>
+                                <h4 className="font-semibold mb-2 text-gray-900">Fouls: {localState.awayTeam.fouls}</h4>
                                 <div className="flex gap-2">
                                     <button
                                         className="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                                         onClick={() => updateTeamFouls('away', '+')}
-                                        aria-label="Ajouter une faute à l'équipe visiteur"
+                                        aria-label="Add a foul to away team"
                                     >
                                         +
                                     </button>
                                     <button
                                         className="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                                         onClick={() => updateTeamFouls('away', '-')}
-                                        aria-label="Soustraire une faute à l'équipe visiteur"
+                                        aria-label="Subtract a foul from away team"
                                     >
                                         -
                                     </button>
@@ -397,19 +397,19 @@ export default function AdminPanel() {
                             </div>
 
                             <div>
-                                <h4 className="font-semibold mb-2 text-gray-900">Temps morts: {localState.awayTeam.timeouts}</h4>
+                                <h4 className="font-semibold mb-2 text-gray-900">Timeouts: {localState.awayTeam.timeouts}</h4>
                                 <div className="flex gap-2">
                                     <button
                                         className="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                                         onClick={() => updateTeamTimeouts('away', '+')}
-                                        aria-label="Ajouter un temps mort à l'équipe visiteur"
+                                        aria-label="Add a timeout to away team"
                                     >
                                         +
                                     </button>
                                     <button
                                         className="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                                         onClick={() => updateTeamTimeouts('away', '-')}
-                                        aria-label="Soustraire un temps mort à l'équipe visiteur"
+                                        aria-label="Subtract a timeout from away team"
                                     >
                                         -
                                     </button>
@@ -419,25 +419,25 @@ export default function AdminPanel() {
                     </div>
                 </div>
 
-                {/* Contrôle de la période */}
+                {/* Period control */}
                 <div className="border border-gray-300 rounded-lg p-4">
-                    <h2 className="text-xl font-bold mb-4 text-gray-900">Période</h2>
+                    <h2 className="text-xl font-bold mb-4 text-gray-900">Period</h2>
                     <div className="flex gap-4 items-center">
-                        <div className="text-2xl font-bold text-gray-900">Période {localState.period}</div>
+                        <div className="text-2xl font-bold text-gray-900">Period {localState.period}</div>
                         <div className="flex gap-2">
                             <button
                                 className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded font-bold focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                                 onClick={() => changePeriod('-')}
-                                aria-label="Passer à la période précédente"
+                                aria-label="Go to previous period"
                             >
-                                Période précédente
+                                Previous period
                             </button>
                             <button
                                 className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded font-bold focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
                                 onClick={() => changePeriod('+')}
-                                aria-label="Passer à la période suivante"
+                                aria-label="Go to next period"
                             >
-                                Période suivante
+                                Next period
                             </button>
                         </div>
                     </div>
